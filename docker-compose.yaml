@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  keydb:
+    image: eqalpha/keydb
+    container_name: keydb
+    ports:
+      - "6379:6379"
+    networks:
+      - sleepmonitor-network
+  
+  
+  publisher:
+    stdin_open: true 
+    tty: true
+    container_name: publisher
+    build:
+      context: publisher
+      dockerfile: Dockerfile
+    ports:
+      - "8099:8099"
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
+  subscriber:
+    build:
+      context: subscriber
+      dockerfile: Dockerfile
+    ports:
+      - "8098:8098"
+    depends_on:
+      - keydb
+    networks:
+      - sleepmonitor-network
+
+
+networks:
+  sleepmonitor-network:
+    driver: bridge
