@@ -1,18 +1,39 @@
 import kotlinx.coroutines.*
+import kotlin.random.Random
 
-fun main() = runBlocking {
-    val keyDBClient = KeyDBClient()
+val keyDBClient = KeyDBClient()
 
+fun main(): Unit = runBlocking {
     println("Запуск автоматической отправки запросов...")
     delay(500) // Задержка перед первым запросом
+    launch {
+        sendRepeatedly();
+    }
+    launch {
+        sendRepeatedly();
+    }
+    launch {
+        sendRepeatedly();
+    }
+    launch {
+        sendRepeatedly();
+    }
+    launch {
+        sendRepeatedly();
+    }
 
+}
+
+suspend fun sendRepeatedly() {
     while (true) {
-        keyDBClient.sendRequest(
+        println(keyDBClient.sendRequest(
             "requestChannel",
-            "Запрос",
-            { response -> println(response) }, // Это messageHandler
-            String::class.java
-        )
-        delay(500) // Задержка перед следующим запросом
+            Message("Запрос"),
+            Message::class.java
+        )?.message)
+        val randomDelay = Random.nextLong(300, 1000)
+        delay(randomDelay)
     }
 }
+
+data class Message(val message: String)

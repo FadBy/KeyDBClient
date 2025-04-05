@@ -1,15 +1,18 @@
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
+@OptIn(DelicateCoroutinesApi::class)
 fun receiveRequests() {
     val keyDBClient = KeyDBClient()
-    runBlocking {
-        while (true) {
-            keyDBClient.receiveRequest("requestChannel", { _ -> "OK" }, String::class.java)
-        }
+    GlobalScope.launch {
+        keyDBClient.subscribeWithResponse("requestChannel", { _ -> Message("OK") }, Message::class.java)
     }
 }
 
-fun main() {
+fun main() = runBlocking {
     println("Ожидание запросов...")
     receiveRequests()
+    // Блокируем main, чтобы программа не завершалась
+    delay(Long.MAX_VALUE)
 }
+
+data class Message(val message: String)
